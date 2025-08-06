@@ -1,0 +1,53 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  NODE_ENV: production
+
+build:
+  stage: build
+  image: node:18-alpine
+  before_script:
+    - npm install
+  script:
+    - echo "Building application..."
+    - npm run build || echo "No build script found"
+  artifacts:
+    paths:
+      - node_modules/
+      - server.js
+      - package.json
+    expire_in: 1 hour
+
+deploy_render:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - |
+      echo "Deploying to Render..."
+      curl -X POST "https://api.render.com/deploy/$RENDER_SERVICE_ID" \
+        -H "Authorization: Bearer $RENDER_API_TOKEN" \
+        -H "Content-Type: application/json"
+  only:
+    - main
+
+# Alternative: Deploy to any server with SSH
+deploy_server:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+  script:
+    - |
+      echo "Deploying to server..."
+      rsync -avz --delete ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+      ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && npm install && pm2 restart server || pm2 start server.js --name server"
+  only:
+    - main
+  when: manual
