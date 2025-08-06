@@ -1,0 +1,184 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Server, Upload as UploadIcon } from 'lucide-react';
+import { FileUploadZone } from '../components/FileUploadZone';
+import { ApiBridge } from '../utils/apiBridge';
+
+export const Upload = () => {
+  const navigate = useNavigate();
+  const [serverName, setServerName] = useState('');
+  const [template, setTemplate] = useState('basic');
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateServer = async () => {
+    if (!serverName.trim()) {
+      alert('Please enter a server name');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const result = await ApiBridge.createServer(serverName.trim(), template);
+      
+      if (result.success) {
+        navigate(`/servers/${result.server.id}`);
+      } else {
+        alert('Failed to create server: ' + result.message);
+      }
+    } catch (error) {
+      alert('Failed to create server: ' + error.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => navigate('/')}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Server</h1>
+          <p className="text-gray-600 dark:text-gray-400">Set up a new server environment</p>
+        </div>
+      </div>
+
+      {/* Server Creation Form */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="space-y-6">
+          {/* Server Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Server Name
+            </label>
+            <input
+              type="text"
+              value={serverName}
+              onChange={(e) => setServerName(e.target.value)}
+              placeholder="my-awesome-server"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Template Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Template
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                  template === 'basic' 
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                  template === 'python' 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                }`}
+                onClick={() => setTemplate('python')}
+              >
+                <div className="text-center">
+                  <div className="h-8 w-8 mx-auto mb-2 bg-blue-500 rounded flex items-center justify-center text-white text-sm font-bold">
+                    PY
+                  </div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Python</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Basic Python setup</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Create Button */}
+          <button
+            onClick={handleCreateServer}
+            disabled={creating || !serverName.trim()}
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 
+                       text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            {creating ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                <span>Creating Server...</span>
+              </>
+            ) : (
+              <>
+                <Server className="h-4 w-4" />
+                <span>Create Server</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Upload Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Or Upload Files to Existing Server
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Upload files to an existing server. ZIP files will be automatically extracted.
+          </p>
+        </div>
+        
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Select Server
+          </label>
+          <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                             bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option value="">Choose a server...</option>
+            {/* Server options would be loaded here */}
+          </select>
+        </div>
+
+        <FileUploadZone 
+          serverId="demo" // This would be dynamic based on selection
+          onUploadComplete={() => {
+            // Handle upload completion
+            console.log('Files uploaded successfully');
+          }}
+        />
+      </div>
+    </div>
+  );
+};blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                }`}
+                onClick={() => setTemplate('basic')}
+              >
+                <div className="text-center">
+                  <Server className="h-8 w-8 mx-auto mb-2 text-gray-600 dark:text-gray-400" />
+                  <h3 className="font-medium text-gray-900 dark:text-white">Basic</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Empty server with README</p>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                  template === 'nodejs' 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                }`}
+                onClick={() => setTemplate('nodejs')}
+              >
+                <div className="text-center">
+                  <div className="h-8 w-8 mx-auto mb-2 bg-green-500 rounded flex items-center justify-center text-white text-sm font-bold">
+                    JS
+                  </div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Node.js</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Basic Node.js setup</p>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                  template === 'python' 
+                    ? 'border-
