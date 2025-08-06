@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: server-bridge-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: API_KEY
+        value: your-super-secret-api-key-123
+      - key: PORT
+        value: 10000
+    autoDeploy: false
