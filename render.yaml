@@ -10,4 +10,6 @@ services:
         value: your-super-secret-api-key-123
       - key: PORT
         value: 10000
+      - key: SERVERS_PATH
+        value: /tmp/servers
     autoDeploy: false

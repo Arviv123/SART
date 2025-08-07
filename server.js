@@ -10,7 +10,7 @@ const AdmZip = require('adm-zip');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const API_KEY = process.env.API_KEY || 'your-super-secret-api-key-123';
-const SERVERS_BASE_PATH = process.env.SERVERS_PATH || './servers';
+const SERVERS_BASE_PATH = process.env.SERVERS_PATH || '/tmp/servers';
 
 // Middleware
 app.use(cors());
