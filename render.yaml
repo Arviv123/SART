@@ -7,7 +7,7 @@ services:
     startCommand: npm start
     envVars:
       - key: API_KEY
-        value: your-super-secret-api-key-123
+        value: my-super-secret-key-2025
       - key: PORT
         value: 10000
       - key: SERVERS_PATH

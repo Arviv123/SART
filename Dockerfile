@@ -22,7 +22,7 @@ EXPOSE 10000
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=10000
-ENV API_KEY=your-super-secret-api-key-123
+ENV API_KEY=my-super-secret-key-2025
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
